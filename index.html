@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Little Something For You</title>
+  <!-- Confetti Library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  
+  <style>
+    /* ----- GLOBAL STYLES ----- */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #ffe6ea;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+      color: #333;
+    }
+
+    h1 {
+      margin-top: 20px;
+      font-size: 24px;
+      text-align: center;
+      transition: opacity 0.5s ease;
+      z-index: 10;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* ----- PHASE 1: 3D BUBBLE WRAP ----- */
+    #bubble-container {
+      display: grid;
+      grid-template-columns: repeat(5, 70px);
+      gap: 15px;
+      margin-top: 30px;
+      z-index: 10;
+    }
+
+    .bubble {
+      width: 70px;
+      height: 70px;
+      /* 3D Glass Effect */
+      background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.2) 70%);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      border-radius: 50%;
+      box-shadow: 
+        5px 5px 15px rgba(0,0,0,0.05),
+        inset -5px -5px 10px rgba(0,0,0,0.05);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px; /* Slightly smaller to fit long nicknames */
+      font-weight: bold;
+      color: transparent; /* Text hidden until popped */
+      user-select: none;
+      transition: transform 0.1s;
+      text-align: center;
+    }
+
+    .bubble:hover:not(.popped) {
+      transform: scale(1.05);
+    }
+
+    /* The bursting animation when clicked */
+    @keyframes burst {
+      0% { transform: scale(1); filter: brightness(1); }
+      40% { transform: scale(1.3); filter: brightness(1.5); }
+      100% { transform: scale(0.9); filter: brightness(1); }
+    }
+
+    .bubble.popped {
+      animation: burst 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      border: none;
+      color: white; /* Show text */
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+      pointer-events: none;
+    }
+
+    /* ----- PHASE 2: GIFT BOX ----- */
+    #gift-container {
+      text-align: center;
+      animation: fadeIn 1s ease forwards;
+      z-index: 10;
+    }
+
+    .gift-box {
+      width: 150px;
+      height: 120px;
+      background-color: #ff4757;
+      position: relative;
+      margin: 50px auto;
+      border-radius: 5px;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+      transition: transform 0.3s ease;
+    }
+
+    .gift-box:hover {
+      transform: scale(1.05) rotate(2deg);
+    }
+
+    .gift-box::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 30px;
+      height: 100%;
+      background-color: #f1f2f6;
+    }
+
+    .gift-lid {
+      width: 170px;
+      height: 40px;
+      background-color: #ff4757;
+      position: absolute;
+      top: -40px;
+      left: -10px;
+      border-radius: 5px;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+      transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 2;
+    }
+
+    .gift-lid::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 30px;
+      height: 100%;
+      background-color: #f1f2f6;
+    }
+
+    .open-box .gift-lid {
+      transform: translateY(-100px) rotate(-20deg) scale(0.8);
+      opacity: 0;
+    }
+
+    /* ----- PHASE 3: THE PICTURE REVEAL ----- */
+    #picture-container {
+      margin-top: -80px;
+      opacity: 0;
+      transform: scale(0.1) translateY(100px);
+      transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      pointer-events: none;
+    }
+
+    #picture-container.show {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+      pointer-events: auto;
+    }
+
+    .her-photo {
+      width: 250px;
+      height: auto;
+      border: 12px solid white;
+      border-bottom: 40px solid white; 
+      box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+      border-radius: 3px;
+      transform: rotate(-3deg);
+    }
+
+    .sweet-message {
+      margin-top: 25px;
+      font-size: 20px;
+      color: #ff4757;
+      font-weight: bold;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 15px 25px;
+      border-radius: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <h1 id="main-title">Pop all the bubbles to unwrap your surprise!</h1>
+
+  <div id="bubble-container"></div>
+
+  <div id="gift-container" class="hidden">
+    <div class="gift-box" id="the-gift">
+      <div class="gift-lid"></div>
+      
+      <div id="picture-container">
+        <!-- PUT HER PICTURE FILE NAME HERE -->
+        <img src="her_picture.jpg" alt="A nice memory" class="her-photo" id="her-image" onerror="this.src='https://placehold.co/250x300?text=Put+Her+Pic+Here'">
+        <div class="sweet-message">Prachi Smile krna toh bnta hai! </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const totalBubbles = 20; 
+    let poppedCount = 0;
+    
+    const bubbleContainer = document.getElementById('bubble-container');
+    const giftContainer = document.getElementById('gift-container');
+    const mainTitle = document.getElementById('main-title');
+    const theGift = document.getElementById('the-gift');
+    const pictureContainer = document.getElementById('picture-container');
+
+    // Vibrant neon colors for the bubbles to turn into
+    const popColors = ['#ff9ff3', '#feca57', '#ff6b6b', '#48dbfb', '#1dd1a1', '#a29bfe'];
+    
+    // Her specific nicknames and inside jokes
+    const popWords = [
+      "Cutiee", "Pickachu", "Chapati", "Baddie", 
+      "Sundari", "Prachi", "Ooops", "Yoss", 
+      "Aankhein", "Prachikuu", "Bauni", "Shawtty", 
+      "Boops", "Yayyy", "Bhootini", "Doraemon"
+    ];
+
+    // Set up the audio engine for a synthetic pop sound
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playPopSound() {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      
+      // Create a short, high-to-low pitch drop that sounds exactly like a bubble
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
+      
+      gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + 0.1);
+    }
+
+    // --- Generate Interactive Bubble Wrap ---
+    for (let i = 0; i < totalBubbles; i++) {
+      const bubble = document.createElement('div');
+      bubble.classList.add('bubble');
+      
+      bubble.addEventListener('click', function() {
+        if (!this.classList.contains('popped')) {
+          this.classList.add('popped');
+          
+          playPopSound(); // Trigger the satisfying pop
+          
+          // Apply a random vibrant color and glow
+          const randomColor = popColors[Math.floor(Math.random() * popColors.length)];
+          this.style.background = randomColor;
+          this.style.boxShadow = `0 0 20px ${randomColor}`;
+          
+          this.innerText = popWords[Math.floor(Math.random() * popWords.length)];
+          
+          poppedCount++;
+          
+          if (poppedCount === totalBubbles) {
+            setTimeout(transitionToGift, 800); 
+          }
+        }
+      });
+      
+      bubbleContainer.appendChild(bubble);
+    }
+
+    function transitionToGift() {
+      bubbleContainer.classList.add('hidden');
+      mainTitle.innerText = "You did it! Now click to open your gift.";
+      giftContainer.classList.remove('hidden');
+    }
+
+    // --- Gift Open & Confetti Logic ---
+    theGift.addEventListener('click', function() {
+      if(!this.classList.contains('open-box')) {
+        this.classList.add('open-box');
+        mainTitle.innerText = "Surprise!";
+        
+        // Fire the confetti explosion!
+        confetti({
+          particleCount: 150,
+          spread: 90,
+          origin: { y: 0.6 },
+          colors: ['#ff4757', '#ff6b81', '#ffffff', '#ff9ff3', '#feca57']
+        });
+        
+        setTimeout(() => {
+          pictureContainer.classList.add('show');
+        }, 400);
+      }
+    });
+  </script>
+</body>
+</html>
