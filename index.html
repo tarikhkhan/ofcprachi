@@ -11,7 +11,7 @@
     /* ----- GLOBAL STYLES ----- */
     body {
       margin: 0;
-      padding: 0;
+      padding: 20px 0 40px 0; 
       background-color: #ffe6ea;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       display: flex;
@@ -19,16 +19,18 @@
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      overflow: hidden;
+      overflow-x: hidden; 
+      overflow-y: auto;   
       color: #333;
     }
 
     h1 {
       margin-top: 20px;
-      font-size: 24px;
+      font-size: 22px;
       text-align: center;
       transition: opacity 0.5s ease;
       z-index: 10;
+      padding: 0 15px;
     }
 
     .hidden {
@@ -38,16 +40,22 @@
     /* ----- PHASE 1: 3D BUBBLE WRAP ----- */
     #bubble-container {
       display: grid;
-      grid-template-columns: repeat(5, 70px);
-      gap: 15px;
-      margin-top: 30px;
+      grid-template-columns: repeat(4, 65px);
+      gap: 12px;
+      margin-top: 20px;
       z-index: 10;
     }
 
+    @media (min-width: 400px) {
+      #bubble-container {
+        grid-template-columns: repeat(5, 70px);
+        gap: 15px;
+      }
+    }
+
     .bubble {
-      width: 70px;
-      height: 70px;
-      /* 3D Glass Effect */
+      width: 100%;
+      aspect-ratio: 1 / 1;
       background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.2) 70%);
       border: 1px solid rgba(255, 255, 255, 0.6);
       border-radius: 50%;
@@ -58,9 +66,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 11px; /* Slightly smaller to fit long nicknames */
+      font-size: 11px;
       font-weight: bold;
-      color: transparent; /* Text hidden until popped */
+      color: transparent; 
       user-select: none;
       transition: transform 0.1s;
       text-align: center;
@@ -70,7 +78,6 @@
       transform: scale(1.05);
     }
 
-    /* The bursting animation when clicked */
     @keyframes burst {
       0% { transform: scale(1); filter: brightness(1); }
       40% { transform: scale(1.3); filter: brightness(1.5); }
@@ -80,7 +87,7 @@
     .bubble.popped {
       animation: burst 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
       border: none;
-      color: white; /* Show text */
+      color: white; 
       text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
       pointer-events: none;
     }
@@ -90,14 +97,15 @@
       text-align: center;
       animation: fadeIn 1s ease forwards;
       z-index: 10;
+      margin-top: 20px;
     }
 
     .gift-box {
-      width: 150px;
-      height: 120px;
+      width: 140px;
+      height: 110px;
       background-color: #ff4757;
       position: relative;
-      margin: 50px auto;
+      margin: 30px auto;
       border-radius: 5px;
       cursor: pointer;
       box-shadow: 0 10px 20px rgba(0,0,0,0.15);
@@ -114,17 +122,17 @@
       top: 0;
       left: 50%;
       transform: translateX(-50%);
-      width: 30px;
+      width: 25px;
       height: 100%;
       background-color: #f1f2f6;
     }
 
     .gift-lid {
-      width: 170px;
-      height: 40px;
+      width: 160px;
+      height: 35px;
       background-color: #ff4757;
       position: absolute;
-      top: -40px;
+      top: -35px;
       left: -10px;
       border-radius: 5px;
       box-shadow: 0 5px 10px rgba(0,0,0,0.1);
@@ -138,23 +146,26 @@
       top: 0;
       left: 50%;
       transform: translateX(-50%);
-      width: 30px;
+      width: 25px;
       height: 100%;
       background-color: #f1f2f6;
     }
 
     .open-box .gift-lid {
-      transform: translateY(-100px) rotate(-20deg) scale(0.8);
+      transform: translateY(-80px) rotate(-20deg) scale(0.8);
       opacity: 0;
     }
 
     /* ----- PHASE 3: THE PICTURE REVEAL ----- */
     #picture-container {
-      margin-top: -80px;
+      margin-top: -60px; 
       opacity: 0;
       transform: scale(0.1) translateY(100px);
       transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     #picture-container.show {
@@ -164,24 +175,30 @@
     }
 
     .her-photo {
-      width: 250px;
-      height: auto;
-      border: 12px solid white;
-      border-bottom: 40px solid white; 
+      width: 90vw; 
+      max-width: 340px; 
+      height: auto; 
+      border: 10px solid white;
+      border-bottom: 35px solid white; 
       box-shadow: 0 15px 35px rgba(0,0,0,0.3);
       border-radius: 3px;
-      transform: rotate(-3deg);
+      transform: rotate(-2deg);
+      box-sizing: border-box;
     }
 
     .sweet-message {
-      margin-top: 25px;
-      font-size: 20px;
+      margin-top: 20px;
+      font-size: 18px; 
       color: #ff4757;
       font-weight: bold;
       background: rgba(255, 255, 255, 0.9);
-      padding: 15px 25px;
+      padding: 12px 20px;
       border-radius: 20px;
       box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      width: 90vw;
+      max-width: 320px;
+      box-sizing: border-box;
+      text-align: center;
     }
 
     @keyframes fadeIn {
@@ -201,9 +218,9 @@
       <div class="gift-lid"></div>
       
       <div id="picture-container">
-        <!-- PUT HER PICTURE FILE NAME HERE -->
-        <img src="her_picture.jpg" alt="A nice memory" class="her-photo" id="her-image" onerror="this.src='https://placehold.co/250x300?text=Put+Her+Pic+Here'">
-        <div class="sweet-message">Prachi Smile krna toh bnta hai! </div>
+        <!-- EXACT FILENAME ADDED HERE -->
+        <img src="her_picture.jpg" alt="A nice memory" class="her-photo" id="her-image" onerror="this.src='https://placehold.co/320x400?text=Put+Her+Pic+Here'">
+        <div class="sweet-message">Prachi smile krna toh bnta hai! 💖</div>
       </div>
     </div>
   </div>
@@ -218,10 +235,8 @@
     const theGift = document.getElementById('the-gift');
     const pictureContainer = document.getElementById('picture-container');
 
-    // Vibrant neon colors for the bubbles to turn into
     const popColors = ['#ff9ff3', '#feca57', '#ff6b6b', '#48dbfb', '#1dd1a1', '#a29bfe'];
     
-    // Her specific nicknames and inside jokes
     const popWords = [
       "Cutiee", "Pickachu", "Chapati", "Baddie", 
       "Sundari", "Prachi", "Ooops", "Yoss", 
@@ -229,13 +244,10 @@
       "Boops", "Yayyy", "Bhootini", "Doraemon"
     ];
 
-    // Set up the audio engine for a synthetic pop sound
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
     function playPopSound() {
       if (audioCtx.state === 'suspended') audioCtx.resume();
-      
-      // Create a short, high-to-low pitch drop that sounds exactly like a bubble
       const oscillator = audioCtx.createOscillator();
       const gainNode = audioCtx.createGain();
       
@@ -253,7 +265,6 @@
       oscillator.stop(audioCtx.currentTime + 0.1);
     }
 
-    // --- Generate Interactive Bubble Wrap ---
     for (let i = 0; i < totalBubbles; i++) {
       const bubble = document.createElement('div');
       bubble.classList.add('bubble');
@@ -261,14 +272,11 @@
       bubble.addEventListener('click', function() {
         if (!this.classList.contains('popped')) {
           this.classList.add('popped');
+          playPopSound(); 
           
-          playPopSound(); // Trigger the satisfying pop
-          
-          // Apply a random vibrant color and glow
           const randomColor = popColors[Math.floor(Math.random() * popColors.length)];
           this.style.background = randomColor;
           this.style.boxShadow = `0 0 20px ${randomColor}`;
-          
           this.innerText = popWords[Math.floor(Math.random() * popWords.length)];
           
           poppedCount++;
@@ -288,13 +296,11 @@
       giftContainer.classList.remove('hidden');
     }
 
-    // --- Gift Open & Confetti Logic ---
     theGift.addEventListener('click', function() {
       if(!this.classList.contains('open-box')) {
         this.classList.add('open-box');
         mainTitle.innerText = "Surprise!";
         
-        // Fire the confetti explosion!
         confetti({
           particleCount: 150,
           spread: 90,
@@ -304,6 +310,11 @@
         
         setTimeout(() => {
           pictureContainer.classList.add('show');
+          
+          setTimeout(() => {
+            pictureContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 300);
+          
         }, 400);
       }
     });
