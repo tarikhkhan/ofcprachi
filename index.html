@@ -2,330 +2,400 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- This line is super important for mobile viewing -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>A Little Something For You</title>
-  <!-- STOP LINK PREVIEW IMAGE -->
-  <meta property="og:title" content="A Little Something For You">
-  <meta property="og:description" content="Click to unwrap your surprise!">
-  <meta property="og:image" content="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:image" content="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
-  <meta itemprop="image" content="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
-
-  <!-- Confetti Library -->
+  
   <!-- Confetti Library -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  
+  <!-- Beautiful Handwriting Font for the Message -->
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
   
   <style>
     /* ----- GLOBAL STYLES ----- */
     body {
-      margin: 0;
-      padding: 20px 0 40px 0; 
+      margin: 0; padding: 0;
       background-color: #ffe6ea;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      overflow-x: hidden; 
-      overflow-y: auto;   
-      color: #333;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 100vh; overflow-x: hidden; color: #333; /* overflow-x hidden prevents side-scrolling */
     }
+
+    .hidden { display: none !important; }
 
     h1 {
-      margin-top: 20px;
-      font-size: 22px;
-      text-align: center;
-      transition: opacity 0.5s ease;
-      z-index: 10;
-      padding: 0 15px;
+      margin-top: 15px; font-size: 24px; text-align: center;
+      transition: opacity 0.5s ease; z-index: 10;
+      text-shadow: 2px 2px 4px rgba(255,255,255,0.8); padding: 0 15px;
     }
 
-    .hidden {
-      display: none !important;
+    /* Floating Hearts */
+    #hearts-background {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      overflow: hidden; pointer-events: none; z-index: 1;
+    }
+    .heart {
+      position: absolute; color: rgba(255, 107, 129, 0.3); user-select: none;
+      animation: floatUp linear infinite;
+    }
+    @keyframes floatUp {
+      0% { transform: translateY(100vh) scale(0.5) rotate(0deg); opacity: 0; }
+      20% { opacity: 0.8; }
+      80% { opacity: 0.8; }
+      100% { transform: translateY(-10vh) scale(1.5) rotate(360deg); opacity: 0; }
     }
 
-    /* ----- PHASE 1: 3D BUBBLE WRAP ----- */
+    /* ----- PHASE 1: BUBBLE WRAP ----- */
     #bubble-container {
-      display: grid;
-      grid-template-columns: repeat(4, 65px);
-      gap: 12px;
-      margin-top: 20px;
-      z-index: 10;
+      display: grid; grid-template-columns: repeat(5, 70px); gap: 15px; margin-top: 20px; z-index: 10;
     }
-
-    @media (min-width: 400px) {
-      #bubble-container {
-        grid-template-columns: repeat(5, 70px);
-        gap: 15px;
-      }
-    }
-
     .bubble {
-      width: 100%;
-      aspect-ratio: 1 / 1;
+      width: 70px; height: 70px;
       background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.2) 70%);
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      border-radius: 50%;
-      box-shadow: 
-        5px 5px 15px rgba(0,0,0,0.05),
-        inset -5px -5px 10px rgba(0,0,0,0.05);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      font-weight: bold;
-      color: transparent; 
-      user-select: none;
-      transition: transform 0.1s;
-      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 50%;
+      box-shadow: 5px 5px 15px rgba(0,0,0,0.05), inset -5px -5px 10px rgba(0,0,0,0.05);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: bold; color: transparent; user-select: none;
+      transition: transform 0.1s; text-align: center;
+      /* Removes the blue tap highlight on mobile phones */
+      -webkit-tap-highlight-color: transparent; 
     }
-
-    .bubble:hover:not(.popped) {
-      transform: scale(1.05);
+    /* Disable hover scale on touch devices so it doesn't get stuck */
+    @media (hover: hover) { .bubble:hover:not(.popped) { transform: scale(1.1); } }
+    
+    .bubble.popped {
+      animation: burst 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      border: none; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); pointer-events: none;
     }
-
     @keyframes burst {
       0% { transform: scale(1); filter: brightness(1); }
       40% { transform: scale(1.3); filter: brightness(1.5); }
       100% { transform: scale(0.9); filter: brightness(1); }
     }
 
-    .bubble.popped {
-      animation: burst 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-      border: none;
-      color: white; 
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-      pointer-events: none;
+    /* ----- PHASE 2: THE PROMISE ----- */
+    #promise-container { text-align: center; z-index: 10; animation: fadeIn 1s ease forwards; width: 100%; }
+    .btn-group { margin-top: 30px; position: relative; height: 100px; display: flex; justify-content: center; align-items: center; }
+    .btn {
+      padding: 12px 30px; font-size: 18px; font-weight: bold;
+      border: none; border-radius: 30px; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.1); transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
     }
+    #yes-btn { background-color: #1dd1a1; color: white; margin-right: 20px; z-index: 5; }
+    #yes-btn:hover { background-color: #10ac84; transform: scale(1.05); }
+    #no-btn { background-color: #ff6b6b; color: white; position: absolute; }
 
-    /* ----- PHASE 2: GIFT BOX ----- */
-    #gift-container {
-      text-align: center;
-      animation: fadeIn 1s ease forwards;
-      z-index: 10;
-      margin-top: 20px;
-    }
-
+    /* ----- PHASE 3: GIFT BOX & PICTURE ----- */
+    #gift-container { text-align: center; z-index: 10; animation: fadeIn 1s ease forwards; }
     .gift-box {
-      width: 140px;
-      height: 110px;
-      background-color: #ff4757;
-      position: relative;
-      margin: 30px auto;
-      border-radius: 5px;
-      cursor: pointer;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-      transition: transform 0.3s ease;
+      width: 150px; height: 120px; background: linear-gradient(135deg, #ff4757, #ff6b81);
+      position: relative; margin: 40px auto; border-radius: 5px; cursor: pointer;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2); transition: transform 0.3s ease; z-index: 20;
+      -webkit-tap-highlight-color: transparent;
     }
-
-    .gift-box:hover {
-      transform: scale(1.05) rotate(2deg);
-    }
-
+    
+    @media (hover: hover) { .gift-box:not(.open-box):hover { transform: scale(1.05) rotate(3deg); box-shadow: 0 15px 25px rgba(0,0,0,0.3); } }
+    
     .gift-box::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 25px;
-      height: 100%;
-      background-color: #f1f2f6;
+      content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 30px; height: 100%; background-color: #f1f2f6; box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
     }
-
     .gift-lid {
-      width: 160px;
-      height: 35px;
-      background-color: #ff4757;
-      position: absolute;
-      top: -35px;
-      left: -10px;
-      border-radius: 5px;
-      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
-      transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      z-index: 2;
+      width: 170px; height: 40px; background: linear-gradient(135deg, #ff4757, #ff6b81);
+      position: absolute; top: -40px; left: -10px; border-radius: 5px;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.1); transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 2;
     }
-
     .gift-lid::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 25px;
-      height: 100%;
-      background-color: #f1f2f6;
+      content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 30px; height: 100%; background-color: #f1f2f6;
     }
+    .open-box .gift-lid { transform: translateY(-100px) rotate(-20deg) scale(0.8); opacity: 0; }
 
-    .open-box .gift-lid {
-      transform: translateY(-80px) rotate(-20deg) scale(0.8);
-      opacity: 0;
-    }
-
-    /* ----- PHASE 3: THE PICTURE REVEAL ----- */
     #picture-container {
-      margin-top: -60px; 
-      opacity: 0;
-      transform: scale(0.1) translateY(100px);
-      transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      pointer-events: none;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      margin-top: -60px;
+      opacity: 0; transform: scale(0.1) translateY(100px);
+      transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+      pointer-events: none; display: flex; flex-direction: column; align-items: center;
+      position: relative; z-index: 30;
     }
-
-    #picture-container.show {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-      pointer-events: auto;
-    }
-
+    
+    #picture-container.show { opacity: 1; transform: scale(1) translateY(0); pointer-events: auto; }
+    
+    .photo-wrapper { position: relative; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; padding: 0 10px;}
     .her-photo {
-      width: 90vw; 
-      max-width: 340px; 
-      height: auto; 
-      border: 10px solid white;
-      border-bottom: 35px solid white; 
-      box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-      border-radius: 3px;
-      transform: rotate(-2deg);
-      box-sizing: border-box;
+      width: 250px; max-width: 80vw; height: auto; max-height: 40vh; object-fit: cover;
+      border: 10px solid white; border-bottom: 35px solid white; 
+      box-shadow: 0 15px 35px rgba(0,0,0,0.3); border-radius: 3px;
+      transform: rotate(-2deg); transition: transform 0.4s ease; position: relative; z-index: 10;
     }
+    .her-photo:hover { transform: rotate(0deg) scale(1.02); }
 
     .sweet-message {
-      margin-top: 20px;
-      font-size: 18px; 
-      color: #ff4757;
-      font-weight: bold;
-      background: rgba(255, 255, 255, 0.9);
-      padding: 12px 20px;
-      border-radius: 20px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-      width: 90vw;
-      max-width: 320px;
-      box-sizing: border-box;
-      text-align: center;
+      font-family: 'Dancing Script', cursive; font-size: 28px; color: #ff4757; 
+      background: rgba(255, 255, 255, 0.95); padding: 10px 25px; border-radius: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1); min-height: 40px; text-align: center;
+      max-width: 85vw; word-wrap: break-word; line-height: 1.2;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    #open-letter-btn {
+      margin-top: 15px; padding: 12px 30px; background: #ff4757; color: white;
+      border: none; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 16px;
+      box-shadow: 0 4px 10px rgba(255, 71, 87, 0.4); animation: fadeIn 1s; z-index: 50; position: relative;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #open-letter-btn:hover { background: #ff6b81; transform: scale(1.05); }
+
+    /* ----- PHASE 4: THE LETTER ----- */
+    #letter-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
+      display: flex; align-items: center; justify-content: center; z-index: 9999;
+      opacity: 0; pointer-events: none; transition: opacity 0.5s;
+    }
+    #letter-overlay.show { opacity: 1; pointer-events: auto; }
+    
+    .letter-paper {
+      background: #fffdf5; padding: 40px 30px; border-radius: 5px;
+      width: 85%; max-width: 400px; max-height: 75vh; overflow-y: auto;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5); transform: translateY(50px);
+      transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      background-image: linear-gradient(#e1e1e1 1px, transparent 1px);
+      background-size: 100% 30px; line-height: 30px; font-family: 'Georgia', serif;
+      color: #444; position: relative;
+    }
+    #letter-overlay.show .letter-paper { transform: translateY(0); }
+    .close-letter {
+      position: absolute; top: 5px; right: 15px; font-size: 32px;
+      cursor: pointer; color: #999; font-family: sans-serif; transition: color 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .close-letter:hover { color: #ff4757; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ========================================= */
+    /* MOBILE OPTIMIZATIONS (For screens < 600px)*/
+    /* ========================================= */
+    @media (max-width: 600px) {
+      h1 { font-size: 20px; margin-top: 10px; }
+      
+      /* Change grid to 4 columns so it fits mobile screens perfectly */
+      #bubble-container {
+        grid-template-columns: repeat(4, 65px); gap: 12px; margin-top: 15px;
+      }
+      .bubble { width: 65px; height: 65px; font-size: 10px; }
+      
+      .btn { padding: 10px 25px; font-size: 16px; }
+      .gift-box { transform: scale(0.9); }
+      
+      .sweet-message { font-size: 24px; padding: 8px 20px; }
+      .letter-paper { padding: 30px 20px; width: 90%; }
+      .close-letter { right: 10px; top: 0px; }
     }
   </style>
 </head>
 <body>
 
-  <h1 id="main-title">Pop all the bubbles to unwrap your surprise!</h1>
+  <div id="hearts-background"></div>
 
+  <h1 id="main-title">Pop all the bubbles to start...</h1>
+
+  <!-- PHASE 1 -->
   <div id="bubble-container"></div>
 
+  <!-- PHASE 2 -->
+  <div id="promise-container" class="hidden">
+    <div class="btn-group">
+      <button id="yes-btn" class="btn">I Promise</button>
+      <button id="no-btn" class="btn">Nope</button>
+    </div>
+  </div>
+
+  <!-- PHASE 3 -->
   <div id="gift-container" class="hidden">
     <div class="gift-box" id="the-gift">
       <div class="gift-lid"></div>
-      
-      <div id="picture-container">
-        <!-- EXACT FILENAME ADDED HERE -->
-        <img src="her_picture.jpg" alt="A nice memory" class="her-photo" id="her-image" onerror="this.src='https://placehold.co/320x400?text=Put+Her+Pic+Here'">
-        <div class="sweet-message">Prachi smile krna toh bnta hai! 💖</div>
+    </div>
+    
+    <div id="picture-container">
+      <div class="photo-wrapper">
+        <!-- REPLACE "her_picture.jpg" WITH THE REAL FILE NAME -->
+        <img src="her_picture.jpg" alt="Memory" class="her-photo" id="revealed-img">
       </div>
+      <div class="sweet-message" id="typewriter-text"></div>
+      <button id="open-letter-btn" class="hidden">Read a Secret 💌</button>
+    </div>
+  </div>
+
+  <!-- PHASE 4 -->
+  <div id="letter-overlay">
+    <div class="letter-paper">
+      <span class="close-letter" id="close-letter-btn">×</span>
+      <h2 style="font-family: 'Segoe UI', sans-serif; color: #ff4757; margin-top: 0; line-height: 1.2;">Helooi Prachi,</h2>
+      <p>so bss mann andar se bola ekdumm ki i should made something for you so i made this. meko kuch ajeeb sapna aaya so i just made this</p>
+      <p>You deserve all the happiness in the world.You have people who think you are amazing and f others i am always at your side.</p>
+      <p>Inn hazaroo ki bheed mein jaana pehchaana chehra ho tumm😊Kisi anjaan sehar mein sukoon dilata thikaana ho tumm🙂‍↕️🙂‍↕️..
+      kisi bhehti kastii ko mile woh kinaara ho tumm🙂‍↔️Der tak udhaas rehne ke baad muskuraane ki wajah ho tum!!!</p>
+      <p style="text-align: right; margin-top: 30px; font-weight: bold; color: #ff4757;">- Tarikh :)</p>
     </div>
   </div>
 
   <script>
-    const totalBubbles = 20; 
-    let poppedCount = 0;
-    
-    const bubbleContainer = document.getElementById('bubble-container');
-    const giftContainer = document.getElementById('gift-container');
-    const mainTitle = document.getElementById('main-title');
-    const theGift = document.getElementById('the-gift');
-    const pictureContainer = document.getElementById('picture-container');
+    // --- Background Hearts ---
+    function createHearts() {
+      const container = document.getElementById('hearts-background');
+      const symbols = ['❤', '💕', '💖', '✨'];
+      setInterval(() => {
+        const heart = document.createElement('div');
+        heart.classList.add('heart');
+        heart.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.animationDuration = (Math.random() * 5 + 8) + 's';
+        heart.style.fontSize = (Math.random() * 15 + 15) + 'px';
+        container.appendChild(heart);
+        setTimeout(() => heart.remove(), 13000);
+      }, 600);
+    }
+    createHearts();
 
-    const popColors = ['#ff9ff3', '#feca57', '#ff6b6b', '#48dbfb', '#1dd1a1', '#a29bfe'];
-    
-    const popWords = [
-      "Cutiee", "Pickachu", "Chapati", "Baddie", 
-      "Sundari", "Prachi", "Ooops", "Yoss", 
-      "Aankhein", "Prachikuu", "Bauni", "Shawtty", 
-      "Boops", "Yayyy", "Bhootini", "Hotty"
-    ];
-
+    // --- Audio System ---
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-    function playPopSound() {
+    function playSound(type) {
       if (audioCtx.state === 'suspended') audioCtx.resume();
-      const oscillator = audioCtx.createOscillator();
-      const gainNode = audioCtx.createGain();
-      
-      oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
-      oscillator.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
-      
-      gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-      
-      oscillator.connect(gainNode);
-      gainNode.connect(audioCtx.destination);
-      
-      oscillator.start();
-      oscillator.stop(audioCtx.currentTime + 0.1);
+      if (type === 'pop') {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+      } else if (type === 'chime') {
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((freq, index) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'triangle'; osc.frequency.value = freq;
+          const startTime = audioCtx.currentTime + (index * 0.1);
+          gain.gain.setValueAtTime(0, startTime);
+          gain.gain.linearRampToValueAtTime(0.3, startTime + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.5);
+          osc.connect(gain); gain.connect(audioCtx.destination);
+          osc.start(startTime); osc.stop(startTime + 0.5);
+        });
+      }
     }
 
+    // --- Elements ---
+    const mainTitle = document.getElementById('main-title');
+    const bubbleContainer = document.getElementById('bubble-container');
+    const promiseContainer = document.getElementById('promise-container');
+    const giftContainer = document.getElementById('gift-container');
+    const noBtn = document.getElementById('no-btn');
+    const yesBtn = document.getElementById('yes-btn');
+    const theGift = document.getElementById('the-gift');
+    
+    const pictureContainer = document.getElementById('picture-container');
+    const imgEl = document.getElementById('revealed-img');
+    const typeWriterEl = document.getElementById('typewriter-text');
+    const letterBtn = document.getElementById('open-letter-btn');
+    const overlay = document.getElementById('letter-overlay');
+    
+    const finalMessage = "Prachi Smile krna toh bnta hai! ✨";
+    let typingTimeout;
+
+    // --- Phase 1: Bubbles ---
+    const totalBubbles = 20; let poppedCount = 0;
+    const popColors = ['#ff9ff3', '#feca57', '#ff6b6b', '#48dbfb', '#1dd1a1'];
+    const popWords = ["Cutiee", "Pickachu", "Chapati", "Baddie", "Sundari", "Prachi", "Ooops", "Yoss", "Aankhein", "Boops"];
+    
     for (let i = 0; i < totalBubbles; i++) {
       const bubble = document.createElement('div');
       bubble.classList.add('bubble');
-      
       bubble.addEventListener('click', function() {
         if (!this.classList.contains('popped')) {
           this.classList.add('popped');
-          playPopSound(); 
-          
+          playSound('pop');
           const randomColor = popColors[Math.floor(Math.random() * popColors.length)];
           this.style.background = randomColor;
           this.style.boxShadow = `0 0 20px ${randomColor}`;
           this.innerText = popWords[Math.floor(Math.random() * popWords.length)];
-          
           poppedCount++;
-          
           if (poppedCount === totalBubbles) {
-            setTimeout(transitionToGift, 800); 
+            setTimeout(() => {
+              bubbleContainer.classList.add('hidden');
+              mainTitle.innerText = "Wait... Do you promise to smile today?";
+              promiseContainer.classList.remove('hidden');
+            }, 800);
           }
         }
       });
-      
       bubbleContainer.appendChild(bubble);
     }
 
-    function transitionToGift() {
-      bubbleContainer.classList.add('hidden');
-      mainTitle.innerText = "You did it! Now click to open your gift.";
+    // --- Phase 2: Runaway Button ---
+    function moveNoBtn() {
+      // Keeps the button within tighter bounds so it doesn't leave mobile screens
+      const x = Math.random() * 120 - 60; 
+      const y = Math.random() * 80 - 40;
+      noBtn.style.transform = `translate(${x}px, ${y}px)`;
+    }
+    
+    // Desktop mouse move
+    noBtn.addEventListener('mouseover', moveNoBtn);
+    
+    // Mobile finger touch (preventDefault stops them from actually pressing it!)
+    noBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      moveNoBtn();
+    });
+    
+    yesBtn.addEventListener('click', () => {
+      promiseContainer.classList.add('hidden');
+      mainTitle.innerText = "Good! Now click to open your gift.";
       giftContainer.classList.remove('hidden');
+    });
+
+    // --- Phase 3: Gift & Picture Reveal ---
+    function typeWriter(text, i) {
+      if (i === 0) typeWriterEl.innerHTML = "";
+      if (i < text.length) {
+        typeWriterEl.innerHTML += text.charAt(i);
+        typingTimeout = setTimeout(() => typeWriter(text, i + 1), 60);
+      } else {
+        setTimeout(() => letterBtn.classList.remove('hidden'), 800);
+      }
     }
 
     theGift.addEventListener('click', function() {
       if(!this.classList.contains('open-box')) {
         this.classList.add('open-box');
         mainTitle.innerText = "Surprise!";
-        
-        confetti({
-          particleCount: 150,
-          spread: 90,
-          origin: { y: 0.6 },
-          colors: ['#ff4757', '#ff6b81', '#ffffff', '#ff9ff3', '#feca57']
-        });
+        playSound('chime');
+        confetti({ particleCount: 200, spread: 120, origin: { y: 0.6 }, colors: ['#ff4757', '#ff6b81', '#ffffff', '#ff9ff3', '#feca57'] });
         
         setTimeout(() => {
           pictureContainer.classList.add('show');
           
-          setTimeout(() => {
-            pictureContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }, 300);
-          
+          imgEl.onerror = function() {
+            this.onerror = null; 
+            this.src = `https://placehold.co/250x300/ffe6ea/ff4757?text=Put+Her+Pic+Here`;
+          };
+
+          setTimeout(() => typeWriter(finalMessage, 0), 500);
         }, 400);
       }
+    });
+
+    // --- Phase 4: The Letter ---
+    letterBtn.addEventListener('click', () => {
+      overlay.classList.add('show');
+    });
+    
+    document.getElementById('close-letter-btn').addEventListener('click', () => {
+      overlay.classList.remove('show');
     });
   </script>
 </body>
